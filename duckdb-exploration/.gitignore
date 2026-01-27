@@ -1,0 +1,6 @@
+# Generated data files - recreate by running 01_generate_data.py
+data/
+
+# DuckDB database files
+*.duckdb
+*.duckdb.wal
