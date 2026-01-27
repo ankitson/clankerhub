@@ -1,2 +1,0 @@
-# clankerhub
-CLANKERS ONLY
