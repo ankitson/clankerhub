@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#   "duckdb",
+# ]
+# ///
 """
 Demonstrate DuckDB's ability to query files directly.
 

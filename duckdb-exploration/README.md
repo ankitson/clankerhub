@@ -92,17 +92,25 @@ duckdb-exploration/
 
 ## Running the Demos
 
-```bash
-# Install dependencies
-pip install duckdb pandas pyarrow
+Scripts use [uv inline script dependencies](https://docs.astral.sh/uv/guides/scripts/#declaring-script-dependencies) - no manual installation needed:
 
-# Generate sample data
-python 01_generate_data.py
+```bash
+# Generate sample data (installs duckdb, pandas automatically)
+uv run 01_generate_data.py
 
 # Run demonstrations
+uv run 02_direct_file_queries.py
+uv run 03_analytics_and_window_functions.py
+uv run 04_python_integration.py
+```
+
+Or with pip (traditional approach):
+
+```bash
+pip install duckdb pandas pyarrow
+python 01_generate_data.py
 python 02_direct_file_queries.py
-python 03_analytics_and_window_functions.py
-python 04_python_integration.py
+# etc.
 ```
 
 ## DuckDB's Sweet Spots

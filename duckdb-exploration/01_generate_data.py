@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#   "duckdb",
+#   "pandas",
+# ]
+# ///
 """
 Generate sample datasets for DuckDB exploration.
 
