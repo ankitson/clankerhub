@@ -245,9 +245,10 @@ npm run build
 
 ## CI/CD
 
-GitHub Actions workflows are configured for automatic builds and releases:
+GitHub Actions workflows live at the repo root under `.github/workflows/`,
+prefixed with the project name:
 
-### Continuous Integration (`.github/workflows/ci.yml`)
+### Continuous Integration (`ai-todo-done-app-ci.yml`)
 
 Runs on every push and PR:
 - Tests on Node.js 18.x, 20.x, and 22.x
@@ -255,7 +256,7 @@ Runs on every push and PR:
 - Build verification
 - Demo smoke test
 
-### Release Binaries (`.github/workflows/release-binaries.yml`)
+### Release Binaries (`ai-todo-done-app-release-binaries.yml`)
 
 Triggered on version tags (`v*`):
 - Builds standalone executables for:
@@ -264,7 +265,7 @@ Triggered on version tags (`v*`):
   - Windows (x64)
 - Creates GitHub Release with downloadable binaries
 
-### Web UI Deployment (`.github/workflows/deploy-web.yml`)
+### Web UI Deployment (`ai-todo-done-app-deploy-web.yml`)
 
 Automatically deploys the React web UI to GitHub Pages:
 - Triggered on push to main/master (when web/ files change)
