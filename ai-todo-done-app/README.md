@@ -265,13 +265,13 @@ Triggered on version tags (`v*`):
   - Windows (x64)
 - Creates GitHub Release with downloadable binaries
 
-### Web UI Deployment (`ai-todo-done-app-deploy-web.yml`)
+### Web UI Deployment (`deploy-pages.yml`)
 
-Automatically deploys the React web UI to GitHub Pages:
-- Triggered on push to main/master (when web/ files change)
-- Builds the Vite app
-- Deploys to GitHub Pages
-- Creates a live preview for every deployment
+A unified workflow deploys all projects' web UIs to GitHub Pages:
+- Builds a landing page at the site root listing all projects
+- Builds each project's web UI into a subdirectory (e.g. `/ai-todo-done-app/`)
+- Triggered on push to main/master when `pages/` or any project's `web/` changes
+- Requires Pages source set to **GitHub Actions** in repo settings
 
 ### Publishing to npm
 
