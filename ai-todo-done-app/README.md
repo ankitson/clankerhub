@@ -219,6 +219,50 @@ npm run dev
 npm run build
 ```
 
+## CI/CD
+
+GitHub Actions workflows are configured for automatic builds and releases:
+
+### Continuous Integration (`.github/workflows/ci.yml`)
+
+Runs on every push and PR:
+- Tests on Node.js 18.x, 20.x, and 22.x
+- Type checking with TypeScript
+- Build verification
+- Demo smoke test
+
+### Release Binaries (`.github/workflows/release-binaries.yml`)
+
+Triggered on version tags (`v*`):
+- Builds standalone executables for:
+  - Linux (x64)
+  - macOS (x64, ARM64)
+  - Windows (x64)
+- Creates GitHub Release with downloadable binaries
+
+### Publishing to npm
+
+To publish a new version:
+
+```bash
+# Update version
+npm version patch  # or minor/major
+
+# Push with tags
+git push --follow-tags
+```
+
+The CI will automatically:
+1. Run tests
+2. Build binaries for all platforms
+3. Create a GitHub Release
+4. Publish to npm (if `NPM_TOKEN` secret is configured)
+
+### Required Secrets
+
+For full CI/CD functionality, configure these repository secrets:
+- `NPM_TOKEN` - npm authentication token (for publishing)
+
 ## Research References
 
 This prototype was informed by studying existing todo app implementations:

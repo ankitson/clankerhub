@@ -1,0 +1,87 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ai-todo-done-app
+
+jobs:
+  build-binaries:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            artifact: todone-linux-x64
+          - os: macos-latest
+            target: macos-x64
+            artifact: todone-macos-x64
+          - os: macos-latest
+            target: macos-arm64
+            artifact: todone-macos-arm64
+          - os: windows-latest
+            target: win-x64
+            artifact: todone-win-x64.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: ai-todo-done-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Install pkg
+        run: npm install -g @yao-pkg/pkg
+
+      - name: Build binary
+        run: |
+          pkg dist/index.js \
+            --target node20-${{ matrix.target }} \
+            --output ${{ matrix.artifact }} \
+            --compress GZip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ai-todo-done-app/${{ matrix.artifact }}*
+          retention-days: 30
+
+  create-release:
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: binaries
+
+      - name: Display structure
+        run: ls -R binaries
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: binaries/**/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
