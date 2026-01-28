@@ -1,4 +1,4 @@
-name: CI/CD
+name: "ai-todo-done-app: CI/CD"
 
 on:
   push:

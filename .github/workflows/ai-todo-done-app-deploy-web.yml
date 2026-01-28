@@ -1,11 +1,11 @@
-name: Deploy Web UI
+name: "ai-todo-done-app: Deploy Web UI"
 
 on:
   push:
     branches: [main, master]
     paths:
       - 'ai-todo-done-app/web/**'
-      - 'ai-todo-done-app/.github/workflows/deploy-web.yml'
+      - '.github/workflows/ai-todo-done-app-deploy-web.yml'
   pull_request:
     branches: [main, master]
     paths:

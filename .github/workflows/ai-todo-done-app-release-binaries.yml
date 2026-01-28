@@ -1,4 +1,4 @@
-name: Release Binaries
+name: "ai-todo-done-app: Release Binaries"
 
 on:
   push:
