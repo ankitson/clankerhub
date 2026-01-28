@@ -59,6 +59,30 @@ npm run demo
 ```
 
 This runs a non-interactive demonstration showing:
+
+### Web UI
+
+A React-based web interface is also available:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Then open http://localhost:3000 in your browser.
+
+**Features:**
+- Add tasks with AI-powered planning
+- View and approve AI-generated plans
+- Track subtask completion with checkboxes
+- Update progress metrics
+- Answer clarification questions
+- Dark mode interface
+
+**Live Demo:** The web UI is automatically deployed to GitHub Pages on every push to main.
+
+### CLI Demo
 - Adding a "Do my taxes" task
 - AI generating a tax preparation plan
 - Approving the plan and completing subtasks
@@ -201,10 +225,10 @@ This is a prototype. Future versions could include:
 - **Real LLM Integration**: Replace mock AI with actual Claude/GPT API calls
 - **Calendar Integration**: Actually create calendar events
 - **File System Skills**: Real file searching and organization
-- **Web Interface**: React/Vue frontend
 - **Collaboration**: Shared tasks and goals
 - **Notifications**: Push notifications for reminders and updates
 - **Learning**: AI improves based on user feedback
+- **Mobile App**: React Native or PWA support
 
 ## Development
 
@@ -239,6 +263,14 @@ Triggered on version tags (`v*`):
   - macOS (x64, ARM64)
   - Windows (x64)
 - Creates GitHub Release with downloadable binaries
+
+### Web UI Deployment (`.github/workflows/deploy-web.yml`)
+
+Automatically deploys the React web UI to GitHub Pages:
+- Triggered on push to main/master (when web/ files change)
+- Builds the Vite app
+- Deploys to GitHub Pages
+- Creates a live preview for every deployment
 
 ### Publishing to npm
 
