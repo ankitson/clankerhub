@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/clankerhub/', // For GitHub Pages deployment
+  base: '/clankerhub/ai-todo-done-app/', // Subdirectory under GitHub Pages
   build: {
     outDir: 'dist',
     sourcemap: true,
