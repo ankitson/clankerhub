@@ -1,0 +1,22 @@
+{
+  "name": "conversation-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes and exports Claude and Claude Code conversations to raw JSON and Markdown",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "scrape": "tsx src/index.ts scrape",
+    "scrape:web": "tsx src/index.ts scrape --source=claude-web",
+    "scrape:code": "tsx src/index.ts scrape --source=claude-code",
+    "export": "tsx src/index.ts export"
+  },
+  "dependencies": {
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  }
+}

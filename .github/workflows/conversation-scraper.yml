@@ -1,0 +1,79 @@
+name: Conversation Scraper
+
+on:
+  # Run on manual trigger
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source to scrape (claude-web, claude-code, or both)'
+        required: false
+        default: 'claude-web'
+        type: choice
+        options:
+          - claude-web
+          - claude-code
+          - both
+
+  # Run on a schedule (daily at 2am UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: conversation-scraper
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Determine source
+        id: source
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SOURCE="${{ github.event.inputs.source }}"
+          else
+            SOURCE="claude-web"
+          fi
+
+          if [ "$SOURCE" = "both" ]; then
+            echo "flag=" >> $GITHUB_OUTPUT
+          else
+            echo "flag=--source=$SOURCE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run scraper
+        env:
+          CLAUDE_SESSION_KEY: ${{ secrets.CLAUDE_SESSION_KEY }}
+          CLAUDE_ORG_ID: ${{ secrets.CLAUDE_ORG_ID }}
+          AUTO_COMMIT: 'false'
+        run: npx tsx src/index.ts scrape ${{ steps.source.outputs.flag }}
+
+      - name: Commit and push changes
+        run: |
+          cd ..
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add conversation-scraper/data/
+
+          if git diff --cached --quiet; then
+            echo "No new conversations to commit"
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+            CONV_COUNT=$(find conversation-scraper/data/raw -name '*.json' 2>/dev/null | wc -l)
+            git commit -m "conversation-scraper: auto-export ${TIMESTAMP} (${CONV_COUNT} conversations)"
+            git push
+          fi
