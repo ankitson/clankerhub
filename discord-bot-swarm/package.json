@@ -1,0 +1,16 @@
+{
+  "name": "discord-bot-swarm",
+  "version": "1.0.0",
+  "description": "Multi-bot Discord channel swarm with periodic prompts and optional LLM replies.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.17.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

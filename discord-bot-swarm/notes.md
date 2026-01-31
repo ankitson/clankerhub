@@ -1,0 +1,6 @@
+- Created project folder for the discord bot swarm app.
+- Planned Node.js app using discord.js with multi-bot support, periodic ticks, and optional LLM response generation.
+- Added package.json with discord.js dependency and start script.
+- Implemented src/brain.js for reply generation with optional OpenAI support and fallback responses.
+- Built src/index.js to manage multiple bot clients, cache channel history, tick on an interval, and decide send vs reply.
+- Wrote README.md with setup, configuration, and behavior details.
