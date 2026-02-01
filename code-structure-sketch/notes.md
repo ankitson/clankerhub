@@ -1,0 +1,3 @@
+- Initialized work folder for code structure sketch.
+- Drafted code-sketch.md with proposed repo layout, core modules, and TS sketches for key flows.
+- Wrote README.md summarizing objective, deliverables, and file list.
