@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live AI Web App Builder (Mock)</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Live AI Web App Builder</p>
+          <h1>Local-First Builder Workspace</h1>
+          <p class="subheading">
+            Chat, edit, and preview a web app in real time. Backend calls are mocked
+            in-browser for rapid prototyping.
+          </p>
+        </div>
+        <div class="header-actions">
+          <button id="new-project-btn" class="secondary">New Project</button>
+          <button id="export-btn">Export Snapshot</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel panel-left">
+          <div class="panel-header">
+            <h2>AI Chat</h2>
+            <span class="pill">Mocked backend</span>
+          </div>
+
+          <div id="status-banner" class="status-banner info">
+            Ready to build. Ask the assistant to generate or edit your app.
+          </div>
+
+          <div id="chat-thread" class="chat-thread"></div>
+
+          <div class="quick-actions">
+            <button data-prompt="Generate a hero landing page with a call to action">Generate UI</button>
+            <button data-prompt="Refactor the layout for better spacing">Refactor</button>
+            <button data-prompt="Explain how the current JavaScript works">Explain</button>
+            <button data-prompt="Add a new feature: pricing cards">Add Feature</button>
+          </div>
+
+          <form id="chat-form" class="chat-form">
+            <label class="sr-only" for="prompt-input">Prompt</label>
+            <textarea
+              id="prompt-input"
+              placeholder="Describe what you want to build..."
+              rows="3"
+              required
+            ></textarea>
+            <div class="chat-form-actions">
+              <button type="submit">Send</button>
+              <span class="hint">Ctrl / Cmd + Enter</span>
+            </div>
+          </form>
+
+          <div class="audit-log">
+            <div class="panel-header">
+              <h3>Audit Log</h3>
+              <button id="clear-log" class="ghost">Clear</button>
+            </div>
+            <ul id="audit-list"></ul>
+          </div>
+        </section>
+
+        <section class="panel panel-center">
+          <div class="panel-header">
+            <h2>Live Preview</h2>
+            <div class="preview-actions">
+              <button data-size="desktop" class="ghost active">Desktop</button>
+              <button data-size="tablet" class="ghost">Tablet</button>
+              <button data-size="mobile" class="ghost">Mobile</button>
+              <button id="reset-preview" class="secondary">Reset Preview</button>
+              <button id="save-snapshot">Save Snapshot</button>
+              <button id="undo-btn" class="ghost">Undo</button>
+            </div>
+          </div>
+          <div class="preview-frame-wrapper">
+            <iframe id="preview-frame" title="App preview" sandbox="allow-scripts"></iframe>
+          </div>
+          <div class="snapshot-list">
+            <h3>Snapshots</h3>
+            <ul id="snapshot-items"></ul>
+          </div>
+        </section>
+
+        <section class="panel panel-right">
+          <div class="panel-header">
+            <h2>Code & Files</h2>
+            <div class="panel-meta">Local persistence enabled</div>
+          </div>
+          <div class="file-tree" id="file-tree"></div>
+          <div class="editor-tabs" id="editor-tabs"></div>
+          <textarea id="code-editor" spellcheck="false"></textarea>
+          <div class="editor-actions">
+            <button id="apply-change">Apply changes</button>
+            <button id="discard-change" class="ghost">Discard</button>
+            <span class="editor-hint">Edits sync instantly with preview</span>
+          </div>
+          <div class="lint-panel" id="lint-panel"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+- Created work folder front-end-mock and notes.md.
+- Reviewed code-structure-sketch, ai-platform-infra, and ux-plan-live-builder docs to guide UI/feature set.
+- Built mock front-end app files (index.html, styles.css, app.js) with chat, preview, editor, audit log, snapshots, and local persistence.
+- Wrote README report with run instructions and feature summary.
+- Captured UI screenshot via Playwright for the mock front-end.
