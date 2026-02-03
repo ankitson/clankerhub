@@ -1,0 +1,5 @@
+- Initialized work folder and notes.
+- Read ai-platform-infra and code-structure-sketch plans to critique and revise.
+- Drafted critique + revised plan and implemented prototype server/UI.
+- Fixed regex validation patterns in prototype server.
+- Attempted to capture UI screenshot; Playwright failed due to browser crash in container.

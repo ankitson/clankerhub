@@ -1,0 +1,16 @@
+{
+  "tenants": [
+    {
+      "tenantId": "northwind",
+      "displayName": "Northwind Outfitters",
+      "allowScripts": false,
+      "model": "mock-sonnet"
+    },
+    {
+      "tenantId": "globex",
+      "displayName": "Globex Labs",
+      "allowScripts": false,
+      "model": "mock-haiku"
+    }
+  ]
+}

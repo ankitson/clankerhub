@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Platform Prototype</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>AI Platform Prototype</h1>
+      <p>Tenant-aware generation with guardrails + preview output.</p>
+    </header>
+    <section class="controls">
+      <label>
+        Tenant
+        <select id="tenantSelect"></select>
+      </label>
+      <label>
+        Prompt
+        <textarea id="promptInput" rows="4" placeholder="Describe the UI you want..."></textarea>
+      </label>
+      <button id="generateButton">Generate preview</button>
+    </section>
+    <section class="status" id="statusPanel"></section>
+    <section class="preview">
+      <h2>Preview</h2>
+      <div id="previewFrame" class="preview-frame"></div>
+    </section>
+    <section class="audit">
+      <h2>Audit Trail</h2>
+      <pre id="auditLog"></pre>
+    </section>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
