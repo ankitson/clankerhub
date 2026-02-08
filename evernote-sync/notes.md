@@ -58,10 +58,32 @@ Uses Evernote's USN-based sync protocol:
 
 4. **Self-closing tags:** ENML uses XML-style self-closing tags (`<en-todo checked="false"/>`), which need to be normalized for HTML parsing.
 
+## Iteration 2 – Attachment Dedup, Frontmatter, Voice Notes
+
+### Attachment Deduplication
+
+When two notes in the same notebook have attachments with the same filename but different content, the second file now gets a `_2` suffix (e.g., `photo_2.png`). The dedup logic checks existing file content with `Buffer.compare()` so identical re-syncs don't create duplicates.
+
+### Frontmatter Field Renames
+
+Changed `created` → `date-created` and `updated` → `date-modified` to match the user's preferred field names.
+
+### Voice Notes and Transcripts
+
+Evernote voice notes are audio resources (MIME types like `audio/amr`, `audio/x-m4a`, `audio/mpeg`). Evernote auto-generates transcripts stored in the resource's recognition XML (`<t>` tags). The sync engine now:
+- Detects audio resources by MIME type
+- Fetches recognition data via `getResource(guid, false, true)`
+- Parses the recognition XML to extract `<t>` tag contents
+- Passes transcript text into the converter's resource map
+- Renders voice notes with a "Voice Note:" label + audio link + blockquoted transcript
+- Saves a sidecar `_transcript.txt` file alongside the audio attachment
+
+Added audio MIME types to the extension map: `.m4a`, `.aac`, `.amr`, `.ogg`, `.weba`.
+
 ## Test Results
 
-46 tests passing across 4 test files:
+49 tests passing across 4 test files:
 - Config: 5 tests (env parsing, shard extraction, notebook filters)
-- ENML Converter: 17 tests (HTML elements, custom elements, edge cases)
-- File Manager: 14 tests (sanitization, atomic writes, moves, trash)
+- ENML Converter: 19 tests (HTML elements, custom elements, voice notes, transcripts)
+- File Manager: 15 tests (sanitization, atomic writes, moves, trash, attachment dedup)
 - Sync State: 6 tests (persistence, corruption recovery)

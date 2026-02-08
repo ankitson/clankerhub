@@ -94,12 +94,12 @@ export class EvernoteClient {
   }
 
   /** Fetch a resource (attachment) by GUID. */
-  async getResource(guid, withData = true) {
+  async getResource(guid, withData = true, withRecognition = false) {
     return this._call('getResource', {
       authenticationToken: this.authToken,
       guid,
       withData,
-      withRecognition: false,
+      withRecognition,
       withAttributes: true,
       withAlternateData: false,
     });

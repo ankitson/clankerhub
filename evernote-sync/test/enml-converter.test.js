@@ -125,6 +125,30 @@ describe('ENML Converter', () => {
     assert.ok(md.includes('[report.pdf](attachments/report.pdf)'), `Expected link in: ${md}`);
   });
 
+  it('should render audio resources as voice notes', () => {
+    const resourceMap = new Map([
+      ['audio1', { filename: 'recording.m4a', mime: 'audio/x-m4a' }],
+    ]);
+    const { convert } = createConverter({ resourceMap });
+    const enml = '<en-note><en-media hash="audio1" type="audio/x-m4a"/></en-note>';
+    const md = convert(enml);
+    assert.ok(md.includes('Voice Note'), `Expected voice note label in: ${md}`);
+    assert.ok(md.includes('[recording.m4a](attachments/recording.m4a)'), `Expected audio link in: ${md}`);
+  });
+
+  it('should include transcript for audio resources when available', () => {
+    const resourceMap = new Map([
+      ['audio2', { filename: 'memo.mp3', mime: 'audio/mpeg', transcript: 'Hello this is a test recording' }],
+    ]);
+    const { convert } = createConverter({ resourceMap });
+    const enml = '<en-note><en-media hash="audio2" type="audio/mpeg"/></en-note>';
+    const md = convert(enml);
+    assert.ok(md.includes('Voice Note'), 'has voice note label');
+    assert.ok(md.includes('memo.mp3'), 'has audio filename');
+    assert.ok(md.includes('Transcript'), 'has transcript label');
+    assert.ok(md.includes('Hello this is a test recording'), 'has transcript text');
+  });
+
   it('should handle missing resource gracefully', () => {
     const { convert } = createConverter();
     const enml = '<en-note><en-media hash="unknown" type="image/jpeg"/></en-note>';
@@ -192,8 +216,8 @@ describe('buildFrontmatter', () => {
     assert.ok(fm.startsWith('---'));
     assert.ok(fm.endsWith('---'));
     assert.ok(fm.includes('title: "My Note"'));
-    assert.ok(fm.includes('created: 2023-06-15T10:30:00Z'));
-    assert.ok(fm.includes('updated: 2024-01-20T14:22:00Z'));
+    assert.ok(fm.includes('date-created: 2023-06-15T10:30:00Z'));
+    assert.ok(fm.includes('date-modified: 2024-01-20T14:22:00Z'));
     assert.ok(fm.includes('tags: ["project-x", "meeting"]'));
     assert.ok(fm.includes('source_url: "https://evernote.com/shard/s1/note/abc"'));
     assert.ok(fm.includes('evernote_guid: "abc123-def456"'));

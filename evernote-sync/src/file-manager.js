@@ -7,6 +7,7 @@
  */
 
 import {
+  readFileSync,
   writeFileSync,
   mkdirSync,
   renameSync,
@@ -70,6 +71,8 @@ export class FileManager {
 
   /**
    * Write an attachment to disk (atomic, binary).
+   * If a file with the same name already exists and has different content,
+   * a numeric suffix is appended to disambiguate (e.g. photo_2.png).
    *
    * @param {string} notebookDir  – notebook folder name
    * @param {string} filename     – sanitised filename
@@ -77,7 +80,9 @@ export class FileManager {
    * @returns {string} relative path from output dir
    */
   writeAttachment(notebookDir, filename, data) {
-    const relPath = join(notebookDir, 'attachments', filename);
+    const attachDir = join(notebookDir, 'attachments');
+    const deduped = this._deduplicateAttachment(attachDir, filename, data);
+    const relPath = join(attachDir, deduped);
     const absPath = join(this.outputDir, relPath);
     this._atomicWriteBinary(absPath, data);
     return relPath;
@@ -196,6 +201,36 @@ export class FileManager {
   }
 
   // ── Private helpers ────────────────────────────────────────────────
+
+  /**
+   * If a file with the same name already exists in the attachment directory
+   * and has different content, return a disambiguated name (e.g. photo_2.png).
+   * If same content exists, return the original name (idempotent overwrite).
+   */
+  _deduplicateAttachment(attachDir, filename, data) {
+    const absPath = join(this.outputDir, attachDir, filename);
+    if (!existsSync(absPath)) return filename;
+
+    // Same content → safe to overwrite
+    const existingData = readFileSync(absPath);
+    if (Buffer.compare(existingData, data) === 0) return filename;
+
+    // Different content → disambiguate with counter
+    const ext = extname(filename);
+    const base = basename(filename, ext);
+    let counter = 2;
+    let candidate;
+    do {
+      candidate = `${base}_${counter}${ext}`;
+      const candidatePath = join(this.outputDir, attachDir, candidate);
+      if (!existsSync(candidatePath)) break;
+      // If candidate exists with same content, reuse it
+      const candidateData = readFileSync(candidatePath);
+      if (Buffer.compare(candidateData, data) === 0) break;
+      counter++;
+    } while (counter < 1000);
+    return candidate;
+  }
 
   _atomicWrite(absPath, content) {
     mkdirSync(dirname(absPath), { recursive: true });

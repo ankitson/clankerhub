@@ -91,7 +91,11 @@ export function createConverter(options = {}) {
 }
 
 /**
- * Resolve an <en-media> element to an HTML img or anchor tag.
+ * Resolve an <en-media> element to an HTML img, audio block, or anchor tag.
+ *
+ * resourceMap entries: { filename, mime, transcript? }
+ * When a transcript is available for audio resources, it is rendered
+ * as a blockquote below the audio link.
  */
 function resolveMedia(attrString, resourceMap) {
   const hashMatch = attrString.match(/hash="([^"]+)"/);
@@ -109,7 +113,19 @@ function resolveMedia(attrString, resourceMap) {
   if (type.startsWith('image/')) {
     return `<img src="${path}" alt="${res.filename}">`;
   }
+  if (type.startsWith('audio/')) {
+    // Voice note: link to the audio file, plus transcript if available
+    let html = `<p><strong>\u266A Voice Note:</strong> <a href="${path}">${res.filename}</a></p>`;
+    if (res.transcript) {
+      html += `<blockquote><p><em>Transcript:</em> ${escapeHtml(res.transcript)}</p></blockquote>`;
+    }
+    return html;
+  }
   return `<a href="${path}">${res.filename}</a>`;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /**
@@ -127,8 +143,8 @@ function resolveMedia(attrString, resourceMap) {
 export function buildFrontmatter(meta) {
   const lines = ['---'];
   lines.push(`title: ${yamlString(meta.title)}`);
-  lines.push(`created: ${meta.created}`);
-  lines.push(`updated: ${meta.updated}`);
+  lines.push(`date-created: ${meta.created}`);
+  lines.push(`date-modified: ${meta.updated}`);
   if (meta.tags && meta.tags.length) {
     lines.push(`tags: [${meta.tags.map(yamlString).join(', ')}]`);
   }

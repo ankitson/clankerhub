@@ -203,7 +203,9 @@ export class SyncEngine {
     const notebookGuid = noteMeta.notebookGuid;
     const notebookName = this.store.notebookName(notebookGuid);
 
-    // Build the resource map for this note's attachments
+    // Build the resource map for this note's attachments.
+    // For audio resources (voice notes), also fetch recognition data
+    // which may contain auto-generated transcripts.
     const resourceMap = new Map();
     if (noteMeta.resources && noteMeta.resources.length) {
       for (const res of noteMeta.resources) {
@@ -212,7 +214,15 @@ export class SyncEngine {
           : null;
         if (hash) {
           const filename = resolveResourceFilename(res);
-          resourceMap.set(hash, { filename, mime: res.mime || '' });
+          const mime = res.mime || '';
+          const entry = { filename, mime };
+
+          // For audio resources, try to fetch transcript from recognition data
+          if (mime.startsWith('audio/')) {
+            entry.transcript = await this._fetchTranscript(res);
+          }
+
+          resourceMap.set(hash, entry);
         }
       }
     }
@@ -339,13 +349,55 @@ export class SyncEngine {
   }
 
   async _downloadOneResource(resMeta, notebookDir) {
-    const fullResource = await this.client.getResource(resMeta.guid, true);
+    const isAudio = (resMeta.mime || '').startsWith('audio/');
+    const fullResource = await this.client.getResource(resMeta.guid, true, isAudio);
     const data = fullResource.data?.body;
     if (!data) return;
 
     const filename = resolveResourceFilename(resMeta);
     const buf = typeof data === 'string' ? Buffer.from(data, 'base64') : Buffer.from(data);
     this.files.writeAttachment(notebookDir, filename, buf);
+
+    // For audio resources, also save transcript as a sidecar .txt file
+    if (isAudio && fullResource.recognition?.body) {
+      const transcript = parseRecognitionXml(fullResource.recognition.body);
+      if (transcript) {
+        const txtFilename = filename.replace(/\.[^.]+$/, '') + '_transcript.txt';
+        this.files.writeAttachment(
+          notebookDir,
+          txtFilename,
+          Buffer.from(transcript, 'utf-8')
+        );
+      }
+    }
+  }
+
+  /**
+   * Fetch transcript text for an audio resource.
+   * Evernote stores auto-generated transcripts in the resource's
+   * recognition XML (<t> tags within <item> elements).
+   *
+   * @param {object} resMeta – resource metadata from sync chunk
+   * @returns {Promise<string|null>} transcript text or null
+   */
+  async _fetchTranscript(resMeta) {
+    try {
+      // Fetch resource with recognition data
+      const fullRes = await this.client.getResource(resMeta.guid, false, true);
+      if (fullRes.recognition?.body) {
+        return parseRecognitionXml(fullRes.recognition.body);
+      }
+      // Also check alternateData which sometimes holds transcripts
+      if (fullRes.alternateData?.body) {
+        const text = typeof fullRes.alternateData.body === 'string'
+          ? fullRes.alternateData.body
+          : Buffer.from(fullRes.alternateData.body).toString('utf-8');
+        if (text.trim()) return text.trim();
+      }
+    } catch {
+      // Transcript is optional; don't fail the note
+    }
+    return null;
   }
 
   // ── Deletions ─────────────────────────────────────────────────────
@@ -400,6 +452,31 @@ function bufferToHex(buf) {
 }
 
 /**
+ * Parse Evernote recognition XML to extract transcript text.
+ *
+ * Evernote auto-generated transcripts for voice notes are stored in
+ * recognition XML with this structure:
+ *   <recoIndex ...>
+ *     <item ...><t>transcript text</t></item>
+ *     ...
+ *   </recoIndex>
+ *
+ * We extract all <t> tag contents and join them.
+ */
+function parseRecognitionXml(xmlOrBuf) {
+  const xml = typeof xmlOrBuf === 'string'
+    ? xmlOrBuf
+    : Buffer.from(xmlOrBuf).toString('utf-8');
+
+  // Extract all <t>...</t> tag contents
+  const matches = [...xml.matchAll(/<t[^>]*>([^<]*)<\/t>/gi)];
+  if (matches.length === 0) return null;
+
+  const text = matches.map(m => m[1].trim()).filter(Boolean).join(' ');
+  return text || null;
+}
+
+/**
  * Determine a filename for a resource.
  */
 function resolveResourceFilename(res) {
@@ -426,6 +503,12 @@ function mimeToExt(mime) {
     'application/pdf': '.pdf',
     'audio/mpeg': '.mp3',
     'audio/wav': '.wav',
+    'audio/x-m4a': '.m4a',
+    'audio/mp4': '.m4a',
+    'audio/aac': '.aac',
+    'audio/amr': '.amr',
+    'audio/ogg': '.ogg',
+    'audio/webm': '.weba',
     'video/mp4': '.mp4',
     'text/plain': '.txt',
     'text/html': '.html',

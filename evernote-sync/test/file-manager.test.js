@@ -107,6 +107,27 @@ describe('FileManager', () => {
     assert.notEqual(path, join('NB', 'Title.md'));
   });
 
+  it('should deduplicate attachment filenames with different content', () => {
+    const data1 = Buffer.from('content version 1');
+    const data2 = Buffer.from('content version 2');
+    const data3 = Buffer.from('content version 3');
+
+    const path1 = fm.writeAttachment('NB', 'photo.png', data1);
+    assert.equal(path1, join('NB', 'attachments', 'photo.png'));
+
+    // Same name, different content → should get _2 suffix
+    const path2 = fm.writeAttachment('NB', 'photo.png', data2);
+    assert.equal(path2, join('NB', 'attachments', 'photo_2.png'));
+
+    // Third collision → _3
+    const path3 = fm.writeAttachment('NB', 'photo.png', data3);
+    assert.equal(path3, join('NB', 'attachments', 'photo_3.png'));
+
+    // Same content as data1 → should reuse original name (no suffix)
+    const path4 = fm.writeAttachment('NB', 'photo.png', data1);
+    assert.equal(path4, join('NB', 'attachments', 'photo.png'));
+  });
+
   it('should compute content hash', () => {
     const hash1 = fm.contentHash('hello');
     const hash2 = fm.contentHash('hello');
