@@ -1,0 +1,84 @@
+# .github/workflows/deploy-cloudflare-pages.yml
+#
+# Deploys the site to Cloudflare Pages on push to main.
+# Creates preview deployments for every pull request.
+#
+# Required GitHub Secrets:
+#   CLOUDFLARE_ACCOUNT_ID  — Your Cloudflare account ID
+#   CLOUDFLARE_API_TOKEN   — API token with "Cloudflare Pages: Edit" permission
+#
+# Required: Create the Pages project first (see README.md for instructions).
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # needed to post preview URL comments
+      deployments: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build site
+        run: bash github-cloudflare-subdomains/build.sh
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=clankerhub --branch=${{ github.head_ref || github.ref_name }}
+
+      # Post the preview URL as a PR comment
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deploy.outputs.deployment-url }}';
+            if (!deploymentUrl) return;
+
+            const body = `### Cloudflare Pages Preview\n\nDeployed to: ${deploymentUrl}\n\n| Project | Preview URL |\n|---------|-------------|\n| Landing page | ${deploymentUrl} |\n| ai-todo-done-app | ${deploymentUrl}/ai-todo-done-app/ |\n| work-ai-plan-prototype | ${deploymentUrl}/work-ai-plan-prototype/ |`;
+
+            // Find existing bot comment to update instead of spamming
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Cloudflare Pages Preview')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
