@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTS Pathfinding Sandbox</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
+  <aside id="sidebar">
+    <h1>⬡ Pathfinding Sandbox</h1>
+
+    <div class="section">
+      <h2>Map</h2>
+      <div class="row">
+        <label>Obstacles</label>
+        <input type="range" id="numObstacles" min="3" max="30" value="12">
+        <span id="obstacleVal" style="width:20px;text-align:right;color:var(--blue)">12</span>
+      </div>
+      <div class="row">
+        <label>Seed</label>
+        <input type="number" id="seed" placeholder="random" min="0">
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="btnGenerate">Generate Map</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Algorithm</h2>
+      <select id="algoSelect"></select>
+      <div id="algoDesc"></div>
+      <div class="btn-row">
+        <button class="primary" id="btnRun">▶ Find Path</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Animation</h2>
+      <div class="btn-row">
+        <button id="btnPlay">▶ Play</button>
+        <button id="btnPause">⏸ Pause</button>
+        <button id="btnReset">↺ Reset</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label>Speed</label>
+        <input type="range" id="speed" min="1" max="10" value="4">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Placement</h2>
+      <p style="font-size:11px;color:var(--subtext0);margin-bottom:6px">
+        Click the canvas to place start / goal.
+      </p>
+      <div class="btn-row">
+        <button class="placeBtn active" data-mode="start">Set Start (S)</button>
+        <button class="placeBtn"        data-mode="goal" >Set Goal (G)</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Display</h2>
+      <label class="check-row">
+        <input type="checkbox" id="chkExplored" checked>
+        Show explored nodes
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="chkPath" checked>
+        Show path
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="chkTree">
+        Show RRT tree
+      </label>
+    </div>
+
+    <div class="section">
+      <h2>Stats</h2>
+      <div id="statsContent">—</div>
+    </div>
+
+    <div class="help">
+      <strong style="color:var(--subtext1)">Adding your own algorithm:</strong><br>
+      Create <code>js/pathfinders/my_algo.js</code>, implement the interface,
+      call <code>PathfinderRegistry.register({…})</code>,
+      then add a <code>&lt;script&gt;</code> tag below.
+    </div>
+  </aside>
+
+  <!-- ── Canvas ────────────────────────────────────────────────────────── -->
+  <div id="canvasWrap">
+    <canvas id="canvas"></canvas>
+  </div>
+
+</div>
+
+<!-- Load order matters: geometry → map → registry → algorithms → renderer → simulator → ui -->
+<script src="js/geometry.js"></script>
+<script src="js/map.js"></script>
+<script src="js/pathfinders/registry.js"></script>
+<script src="js/pathfinders/visibility_astar.js"></script>
+<script src="js/pathfinders/grid_astar.js"></script>
+<script src="js/pathfinders/theta_star.js"></script>
+<script src="js/pathfinders/rrt.js"></script>
+<!-- ↑ Add your own pathfinder scripts here ↑ -->
+<script src="js/renderer.js"></script>
+<script src="js/simulator.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
